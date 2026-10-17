@@ -1,0 +1,30 @@
+
+# Secrets
+.env
+.env.*
+!.env.example
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+
+# Editor and OS files
+.vscode/
+.DS_Store
+Thumbs.db
+
+# Large raw datasets and generated training outputs
+datasets/
+outputs/
+
+# Large models not required by the Flask website
+models/logistic_regression_model.pkl
+models/naive_bayes_model.pkl
+models/naive_bayes_tfidf_vectorizer.pkl
+models/random_forest_model.pkl
+models/tfidf_vectorizer.pkl
+
+# Power BI files
+dashboard/*.pbix

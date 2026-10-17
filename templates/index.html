@@ -1,0 +1,1217 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>InsightSphere | Universal Review Intelligence</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: Inter, Arial, sans-serif;
+            background:
+                radial-gradient(circle at top left, #eef0ff 0%, transparent 35%),
+                radial-gradient(circle at bottom right, #f3edff 0%, transparent 35%),
+                #f8f9ff;
+            color: #202044;
+            min-height: 100vh;
+        }
+
+        .container {
+            width: min(1100px, 92%);
+            margin: auto;
+        }
+
+        /* HEADER */
+
+        header {
+            text-align: center;
+            padding: 55px 20px 30px;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 8px 15px;
+            border-radius: 30px;
+            background: #ecebff;
+            color: #5b55d9;
+            font-size: 13px;
+            font-weight: 700;
+            margin-bottom: 18px;
+        }
+
+        header h1 {
+            font-size: clamp(36px, 6vw, 62px);
+            letter-spacing: -2px;
+            color: #191943;
+        }
+
+        header h1 span {
+            color: #6861ee;
+        }
+
+        header p {
+            max-width: 700px;
+            margin: 15px auto 0;
+            color: #66677d;
+            line-height: 1.7;
+            font-size: 16px;
+        }
+
+        /* SEARCH */
+
+        .search-card {
+            background: rgba(255,255,255,0.92);
+            border: 1px solid #e7e7f3;
+            border-radius: 24px;
+            padding: 30px;
+            box-shadow: 0 18px 50px rgba(60, 55, 120, 0.10);
+            margin: 20px auto 35px;
+        }
+
+        .search-card label {
+            display: block;
+            font-weight: 800;
+            margin-bottom: 12px;
+            color: #28275b;
+        }
+
+        .search-row {
+            display: flex;
+            gap: 12px;
+        }
+
+        #itemInput {
+            flex: 1;
+            border: 1px solid #dcdced;
+            border-radius: 14px;
+            padding: 16px 18px;
+            font-size: 16px;
+            outline: none;
+            background: #fafaff;
+            color: #22223d;
+        }
+
+        #itemInput:focus {
+            border-color: #6b64ef;
+            box-shadow: 0 0 0 4px rgba(107,100,239,0.10);
+        }
+
+        #analyzeBtn {
+            border: none;
+            border-radius: 14px;
+            padding: 0 25px;
+            background: linear-gradient(135deg, #6962ef, #514bd0);
+            color: white;
+            font-size: 15px;
+            font-weight: 800;
+            cursor: pointer;
+            transition: 0.2s;
+            min-width: 145px;
+        }
+
+        #analyzeBtn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(89,81,220,0.25);
+        }
+
+        #analyzeBtn:disabled {
+            opacity: 0.65;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .examples {
+            margin-top: 14px;
+            color: #85859a;
+            font-size: 13px;
+        }
+
+        /* LOADING */
+
+        #loading {
+            display: none;
+            text-align: center;
+            padding: 35px;
+        }
+
+        .spinner {
+            width: 42px;
+            height: 42px;
+            border: 4px solid #e5e4fa;
+            border-top-color: #625ce4;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            margin: auto auto 15px;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        #loading p {
+            color: #68687c;
+        }
+
+        /* ERROR */
+
+        #errorBox {
+            display: none;
+            background: #fff0f0;
+            border: 1px solid #ffd0d0;
+            color: #b42323;
+            border-radius: 16px;
+            padding: 18px;
+            margin-bottom: 25px;
+        }
+
+        /* RESULT */
+
+        #result {
+            display: none;
+        }
+
+        .result-header {
+            background: white;
+            border: 1px solid #e8e8f2;
+            border-radius: 24px;
+            padding: 30px;
+            box-shadow: 0 14px 40px rgba(60,55,120,0.08);
+            margin-bottom: 18px;
+        }
+
+        .result-header h2 {
+            font-size: 30px;
+            color: #202044;
+            margin-bottom: 12px;
+        }
+
+        .sentiment-pill {
+            display: inline-block;
+            padding: 9px 15px;
+            border-radius: 30px;
+            font-weight: 800;
+            font-size: 14px;
+            margin-bottom: 18px;
+        }
+
+        .positive {
+            background: #e9f8ef;
+            color: #168342;
+        }
+
+        .negative {
+            background: #ffeded;
+            color: #c72f2f;
+        }
+
+        .neutral {
+            background: #fff7df;
+            color: #9a7100;
+        }
+
+        .insufficient {
+            background: #eeeeef;
+            color: #555;
+        }
+
+        .confidence {
+            color: #6a6a7c;
+            font-size: 14px;
+        }
+
+        .confidence strong {
+            color: #29285a;
+        }
+
+        /* STAT CARDS */
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin-bottom: 18px;
+        }
+
+        .stat {
+            background: white;
+            border: 1px solid #e8e8f2;
+            border-radius: 18px;
+            padding: 22px;
+            text-align: center;
+        }
+
+        .stat h3 {
+            font-size: 28px;
+            margin-bottom: 6px;
+        }
+
+        .stat p {
+            font-size: 13px;
+            color: #77778a;
+            font-weight: 600;
+        }
+
+        .stat.positive-stat h3 {
+            color: #168342;
+        }
+
+        .stat.neutral-stat h3 {
+            color: #a17b00;
+        }
+
+        .stat.negative-stat h3 {
+            color: #c72f2f;
+        }
+
+        /* CONTENT GRID */
+
+        .grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 18px;
+            margin-bottom: 18px;
+        }
+
+        .card {
+            background: white;
+            border: 1px solid #e8e8f2;
+            border-radius: 20px;
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(60,55,120,0.05);
+        }
+
+        .card h3 {
+            color: #29285a;
+            margin-bottom: 15px;
+            font-size: 18px;
+        }
+
+        .summary {
+            color: #5f6073;
+            line-height: 1.75;
+            font-size: 15px;
+        }
+
+        /* INSIGHTS */
+
+        .insight-list {
+            list-style: none;
+        }
+
+        .insight-list li {
+            padding: 12px 0;
+            border-bottom: 1px solid #eeeeF5;
+            color: #5e5e70;
+            line-height: 1.55;
+            font-size: 14px;
+        }
+
+        .insight-list li:last-child {
+            border-bottom: none;
+        }
+
+        .positive-title {
+            color: #168342;
+        }
+
+        .negative-title {
+            color: #c72f2f;
+        }
+
+        /* ASPECTS */
+
+        .aspect {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 15px;
+            padding: 12px 0;
+            border-bottom: 1px solid #eeeeF5;
+        }
+
+        .aspect:last-child {
+            border-bottom: none;
+        }
+
+        .aspect-name {
+            font-weight: 700;
+            color: #4a4a60;
+        }
+
+        .aspect-badge {
+            font-size: 12px;
+            font-weight: 800;
+            padding: 6px 10px;
+            border-radius: 20px;
+        }
+
+        /* SOURCES */
+
+        .sources {
+            margin-top: 18px;
+        }
+
+        .source {
+            padding: 15px 0;
+            border-bottom: 1px solid #eeeeF5;
+        }
+
+        .source:last-child {
+            border-bottom: none;
+        }
+
+        .source a {
+            color: #5750dc;
+            text-decoration: none;
+            font-weight: 700;
+            font-size: 14px;
+        }
+
+        .source a:hover {
+            text-decoration: underline;
+        }
+
+        .source-url {
+            color: #9696a8;
+            font-size: 12px;
+            margin-top: 5px;
+            word-break: break-all;
+        }
+
+        /* FOOTER */
+
+        footer {
+            text-align: center;
+            color: #9292a4;
+            font-size: 13px;
+            padding: 35px 10px 50px;
+        }
+
+        /* RESPONSIVE */
+
+        @media (max-width: 750px) {
+
+            .search-row {
+                flex-direction: column;
+            }
+
+            #analyzeBtn {
+                height: 52px;
+            }
+
+            .stats {
+                grid-template-columns: 1fr;
+            }
+
+            .grid {
+                grid-template-columns: 1fr;
+            }
+
+            header {
+                padding-top: 35px;
+            }
+
+            .search-card,
+            .result-header,
+            .card {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="container">
+
+    <!-- HEADER -->
+
+    <header>
+
+        <div class="badge">
+            ✨ AI • NLP • Machine Learning
+        </div>
+
+        <h1>
+            Insight<span>Sphere</span>
+        </h1>
+
+        <p>
+            Universal review intelligence powered by
+            Natural Language Processing and Machine Learning.
+            Search for a movie, book, destination, food,
+            product, hotel, or almost anything people review online.
+        </p>
+
+    </header>
+
+
+    <!-- SEARCH -->
+
+    <section class="search-card">
+
+        <label for="itemInput">
+            🔎 What would you like to explore?
+        </label>
+
+        <div class="search-row">
+
+            <input
+                type="text"
+                id="itemInput"
+                placeholder="Try Interstellar, Ooty, iPhone, Biryani, Atomic Habits..."
+                autocomplete="off"
+            >
+
+            <button id="analyzeBtn">
+                Analyze
+            </button>
+
+        </div>
+
+        <div class="examples">
+            Examples:
+            Interstellar • Atomic Habits • Ooty • Biryani •
+            iPhone • Cetaphil Moisturizer • Taj Coromandel
+        </div>
+
+    </section>
+
+
+    <!-- LOADING -->
+
+    <div id="loading">
+
+        <div class="spinner"></div>
+
+        <p>
+            Searching the web and analyzing review evidence...
+        </p>
+
+    </div>
+
+
+    <!-- ERROR -->
+
+    <div id="errorBox"></div>
+
+
+    <!-- RESULT -->
+
+    <section id="result">
+
+        <div class="result-header">
+
+            <h2 id="resultItem">
+                —
+            </h2>
+
+            <div
+                id="sentimentPill"
+                class="sentiment-pill"
+            >
+                —
+            </div>
+
+            <div class="confidence">
+
+                Model confidence:
+                <strong id="confidence">
+                    —
+                </strong>
+
+            </div>
+
+        </div>
+
+
+        <!-- STATISTICS -->
+
+        <div class="stats">
+
+            <div class="stat positive-stat">
+
+                <h3 id="positiveCount">
+                    0
+                </h3>
+
+                <p>
+                    Positive
+                </p>
+
+            </div>
+
+
+            <div class="stat neutral-stat">
+
+                <h3 id="neutralCount">
+                    0
+                </h3>
+
+                <p>
+                    Neutral
+                </p>
+
+            </div>
+
+
+            <div class="stat negative-stat">
+
+                <h3 id="negativeCount">
+                    0
+                </h3>
+
+                <p>
+                    Negative
+                </p>
+
+            </div>
+
+        </div>
+
+
+        <!-- SUMMARY + ASPECTS -->
+
+        <div class="grid">
+
+            <div class="card">
+
+                <h3>
+                    🧠 InsightSphere Summary
+                </h3>
+
+                <p
+                    id="summary"
+                    class="summary"
+                >
+                    —
+                </p>
+
+            </div>
+
+
+            <div class="card">
+
+                <h3>
+                    📊 Review Evidence
+                </h3>
+
+                <p class="summary">
+
+                    Review-related text segments analyzed:
+                    <strong id="totalReviews">
+                        0
+                    </strong>
+
+                    <br><br>
+
+                    Processing time:
+                    <strong id="processingTime">
+                        —
+                    </strong>
+                    seconds
+
+                </p>
+
+            </div>
+
+        </div>
+
+
+        <!-- KEY INSIGHTS -->
+
+        <div class="grid">
+
+            <div class="card">
+
+                <h3 class="positive-title">
+                    👍 What People Like
+                </h3>
+
+                <ul
+                    id="positiveInsights"
+                    class="insight-list"
+                ></ul>
+
+            </div>
+
+
+            <div class="card">
+
+                <h3 class="negative-title">
+                    👎 What People Dislike
+                </h3>
+
+                <ul
+                    id="negativeInsights"
+                    class="insight-list"
+                ></ul>
+
+            </div>
+
+        </div>
+
+
+        <!-- ASPECTS -->
+
+        <div class="card">
+
+            <h3>
+                🔍 Key Review Aspects
+            </h3>
+
+            <div id="aspects"></div>
+
+        </div>
+
+
+        <!-- SOURCES -->
+
+        <div class="card sources">
+
+            <h3>
+                🌐 Web Sources
+            </h3>
+
+            <div id="sources"></div>
+
+        </div>
+
+    </section>
+
+
+    <footer>
+
+        InsightSphere • Multi-Domain Sentiment Analysis
+        using NLP & Machine Learning
+
+    </footer>
+
+</div>
+
+
+<script>
+
+    const input =
+        document.getElementById("itemInput");
+
+    const button =
+        document.getElementById("analyzeBtn");
+
+    const loading =
+        document.getElementById("loading");
+
+    const result =
+        document.getElementById("result");
+
+    const errorBox =
+        document.getElementById("errorBox");
+
+
+    // ========================================================
+    // ANALYZE
+    // ========================================================
+
+    async function analyzeItem() {
+
+        const item =
+            input.value.trim();
+
+        if (!item) {
+
+            showError(
+                "Please enter something to analyze."
+            );
+
+            return;
+        }
+
+
+        // UI state
+
+        button.disabled = true;
+
+        button.textContent =
+            "Analyzing...";
+
+        result.style.display =
+            "none";
+
+        errorBox.style.display =
+            "none";
+
+        loading.style.display =
+            "block";
+
+
+        try {
+
+            const response =
+                await fetch(
+                    "/analyze",
+                    {
+
+                        method: "POST",
+
+                        headers: {
+                            "Content-Type":
+                                "application/json"
+                        },
+
+                        body: JSON.stringify({
+                            item: item
+                        })
+
+                    }
+                );
+
+
+            const data =
+                await response.json();
+
+
+            if (!response.ok || !data.success) {
+
+                throw new Error(
+                    data.error ||
+                    "Analysis failed."
+                );
+
+            }
+
+
+            displayResult(data);
+
+
+        }
+
+        catch (error) {
+
+            console.error(error);
+
+            showError(
+                error.message ||
+                "Something went wrong while analyzing the item."
+            );
+
+        }
+
+        finally {
+
+            loading.style.display =
+                "none";
+
+            button.disabled =
+                false;
+
+            button.textContent =
+                "Analyze";
+
+        }
+
+    }
+
+
+    // ========================================================
+    // DISPLAY RESULT
+    // ========================================================
+
+    function displayResult(data) {
+
+        result.style.display =
+            "block";
+
+
+        // Item
+
+        document.getElementById(
+            "resultItem"
+        ).textContent =
+            data.item;
+
+
+        // Sentiment
+
+        const sentiment =
+            data.overall_sentiment ||
+            "Insufficient Data";
+
+        const pill =
+            document.getElementById(
+                "sentimentPill"
+            );
+
+        pill.textContent =
+            "● " + sentiment + " Sentiment";
+
+        pill.className =
+            "sentiment-pill " +
+            sentiment
+                .toLowerCase()
+                .replace(" ", "-");
+
+
+        // Confidence
+
+        document.getElementById(
+            "confidence"
+        ).textContent =
+            (data.confidence || 0) +
+            "%";
+
+
+        // Counts
+
+        document.getElementById(
+            "positiveCount"
+        ).textContent =
+            data.positive || 0;
+
+        document.getElementById(
+            "neutralCount"
+        ).textContent =
+            data.neutral || 0;
+
+        document.getElementById(
+            "negativeCount"
+        ).textContent =
+            data.negative || 0;
+
+
+        // Evidence
+
+        document.getElementById(
+            "totalReviews"
+        ).textContent =
+            data.total_reviews_analyzed || 0;
+
+
+        document.getElementById(
+            "processingTime"
+        ).textContent =
+            data.processing_time || "—";
+
+
+        // Summary
+
+        document.getElementById(
+            "summary"
+        ).textContent =
+            data.summary || "No summary available.";
+
+
+        // Insights
+
+        renderInsights(
+            "positiveInsights",
+            data.key_insights?.positive || [],
+            "No strong positive review points found."
+        );
+
+        renderInsights(
+            "negativeInsights",
+            data.key_insights?.negative || [],
+            "No strong negative review points found."
+        );
+
+
+        // Aspects
+
+        renderAspects(
+            data.aspects || {}
+        );
+
+
+        // Sources
+
+        renderSources(
+            data.sources || []
+        );
+
+
+        // Scroll
+
+        setTimeout(() => {
+
+            result.scrollIntoView({
+                behavior: "smooth",
+                block: "start"
+            });
+
+        }, 100);
+
+    }
+
+
+    // ========================================================
+    // INSIGHTS
+    // ========================================================
+
+    function renderInsights(
+        elementId,
+        items,
+        emptyMessage
+    ) {
+
+        const container =
+            document.getElementById(
+                elementId
+            );
+
+        container.innerHTML = "";
+
+
+        if (!items.length) {
+
+            const li =
+                document.createElement(
+                    "li"
+                );
+
+            li.textContent =
+                emptyMessage;
+
+            container.appendChild(li);
+
+            return;
+        }
+
+
+        items.forEach(text => {
+
+            const li =
+                document.createElement(
+                    "li"
+                );
+
+            li.textContent =
+                text;
+
+            container.appendChild(li);
+
+        });
+
+    }
+
+
+    // ========================================================
+    // ASPECTS
+    // ========================================================
+
+    function renderAspects(aspects) {
+
+        const container =
+            document.getElementById(
+                "aspects"
+            );
+
+        container.innerHTML = "";
+
+
+        const names =
+            Object.keys(aspects);
+
+
+        if (!names.length) {
+
+            container.innerHTML =
+                "<p class='summary'>Not enough evidence to detect major review aspects.</p>";
+
+            return;
+        }
+
+
+        names.forEach(name => {
+
+            const aspect =
+                aspects[name];
+
+
+            const row =
+                document.createElement(
+                    "div"
+                );
+
+            row.className =
+                "aspect";
+
+
+            const title =
+                document.createElement(
+                    "span"
+                );
+
+            title.className =
+                "aspect-name";
+
+            title.textContent =
+                name;
+
+
+            const badge =
+                document.createElement(
+                    "span"
+                );
+
+            badge.className =
+                "aspect-badge " +
+                aspect.sentiment
+                    .toLowerCase();
+
+
+            badge.textContent =
+                aspect.sentiment +
+                " • " +
+                aspect.mentions +
+                " mentions";
+
+
+            row.appendChild(title);
+
+            row.appendChild(badge);
+
+            container.appendChild(row);
+
+        });
+
+    }
+
+
+    // ========================================================
+    // SOURCES
+    // ========================================================
+
+    function renderSources(sources) {
+
+        const container =
+            document.getElementById(
+                "sources"
+            );
+
+        container.innerHTML = "";
+
+
+        if (!sources.length) {
+
+            container.innerHTML =
+                "<p class='summary'>No web sources available.</p>";
+
+            return;
+        }
+
+
+        sources.forEach(source => {
+
+            const wrapper =
+                document.createElement(
+                    "div"
+                );
+
+            wrapper.className =
+                "source";
+
+
+            const link =
+                document.createElement(
+                    "a"
+                );
+
+            link.href =
+                source.url;
+
+            link.target =
+                "_blank";
+
+            link.rel =
+                "noopener noreferrer";
+
+            link.textContent =
+                source.title ||
+                "Web Source";
+
+
+            const url =
+                document.createElement(
+                    "div"
+                );
+
+            url.className =
+                "source-url";
+
+            url.textContent =
+                source.url;
+
+
+            wrapper.appendChild(
+                link
+            );
+
+            wrapper.appendChild(
+                url
+            );
+
+            container.appendChild(
+                wrapper
+            );
+
+        });
+
+    }
+
+
+    // ========================================================
+    // ERROR
+    // ========================================================
+
+    function showError(message) {
+
+        errorBox.textContent =
+            "⚠️ " + message;
+
+        errorBox.style.display =
+            "block";
+
+        loading.style.display =
+            "none";
+
+    }
+
+
+    // ========================================================
+    // ENTER KEY
+    // ========================================================
+
+    input.addEventListener(
+        "keydown",
+        function(event) {
+
+            if (
+                event.key === "Enter"
+            ) {
+
+                analyzeItem();
+
+            }
+
+        }
+    );
+
+
+    button.addEventListener(
+        "click",
+        analyzeItem
+    );
+
+</script>
+
+</body>
+</html>

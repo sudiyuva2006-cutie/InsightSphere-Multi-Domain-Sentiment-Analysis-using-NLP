@@ -1,0 +1,9 @@
+domain,sentiment,count
+Hotels,negative,1063
+Hotels,neutral,7426
+Hotels,positive,41511
+Movies,negative,24698
+Movies,positive,24884
+Travel,negative,3214
+Travel,neutral,2184
+Travel,positive,15093
